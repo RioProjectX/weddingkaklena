@@ -1,0 +1,6 @@
+{
+  "name": "Undangan Digital Pernikahan",
+  "description": "Premium interactive digital wedding invitation application featuring custom digital RSVP guestbook, interactive stories timeline, and beautiful media options.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

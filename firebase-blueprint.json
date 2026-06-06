@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "Invitation": {
+      "title": "Invitation",
+      "description": "Represents the digital invitation settings, text contents, and background configurations.",
+      "type": "object",
+      "properties": {
+        "groomName": { "type": "string" },
+        "groomNick": { "type": "string" },
+        "groomParents": { "type": "string" },
+        "groomPhoto": { "type": "string" },
+        "brideName": { "type": "string" },
+        "brideNick": { "type": "string" },
+        "brideParents": { "type": "string" },
+        "bridePhoto": { "type": "string" },
+        "holyMatrimonyDate": { "type": "string" },
+        "holyMatrimonyTime": { "type": "string" },
+        "holyMatrimonyVenue": { "type": "string" },
+        "holyMatrimonyAddress": { "type": "string" },
+        "holyMatrimonyMap": { "type": "string" },
+        "receptionDate": { "type": "string" },
+        "receptionTime": { "type": "string" },
+        "receptionVenue": { "type": "string" },
+        "receptionAddress": { "type": "string" },
+        "receptionMap": { "type": "string" },
+        "giftBankName": { "type": "string" },
+        "giftBankAccount": { "type": "string" },
+        "giftBankHolder": { "type": "string" },
+        "giftAddress": { "type": "string" },
+        "giftRecipient": { "type": "string" },
+        "musicUrl": { "type": "string" },
+        "musicTitle": { "type": "string" },
+        "storiesJson": { "type": "string" },
+        "galleryJson": { "type": "string" },
+        "coverPhoto": { "type": "string" },
+        "coverBackgroundPhoto": { "type": "string" },
+        "mainBackgroundPhoto": { "type": "string" },
+        "groomInstagram": { "type": "string" },
+        "brideInstagram": { "type": "string" },
+        "adminPassword": { "type": "string" },
+        "bibleVerse": { "type": "string" },
+        "bibleReference": { "type": "string" },
+        "thankYouMessage": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["groomName", "brideName", "updatedAt"]
+    },
+    "Wish": {
+      "title": "Wish",
+      "description": "A guestbook entry with wedding wishes and RSVP status.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["Hadir", "Tidak Hadir", "Ragu-ragu"] },
+        "wish": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status", "wish", "createdAt"]
+    }
+  },
+  "firestore": {
+    "invitations/{invitationId}": {
+      "schema": "Invitation",
+      "description": "Customizable wedding invitation settings."
+    },
+    "wishes/{wishId}": {
+      "schema": "Wish",
+      "description": "Wishes and RSVPs of wedding guests."
+    }
+  }
+}

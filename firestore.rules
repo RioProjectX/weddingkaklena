@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow reading connection test document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Common helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && 
+             request.auth.token.email == "sandrionainggolan43@gmail.com" && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Rules for Invitations collection
+    match /invitations/{invitationId} {
+      allow get: if true;
+      allow list: if false; // Block query list scraping
+      
+      allow create: if true; // Allow initial seeding
+
+      allow update: if (
+        isAdmin() || 
+        (request.resource.data.adminPassword == resource.data.adminPassword)
+      ) && 
+      request.resource.data.groomName is string && request.resource.data.groomName.size() <= 200 &&
+      request.resource.data.brideName is string && request.resource.data.brideName.size() <= 200;
+      
+      allow delete: if isAdmin();
+    }
+
+    // Rules for Wishes collection (RSVP / Guestbook)
+    match /wishes/{wishId} {
+      allow read: if true; // Anyone can read guestbook wishes
+
+      allow create: if 
+        isValidId(wishId) &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
+        request.resource.data.wish is string && request.resource.data.wish.size() <= 1000 &&
+        request.resource.data.status in ['Hadir', 'Tidak Hadir', 'Ragu-ragu'] &&
+        request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
