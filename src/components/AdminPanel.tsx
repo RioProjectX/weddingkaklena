@@ -533,26 +533,32 @@ export default function AdminPanel({ data, onUpdateData, onClose }: AdminPanelPr
                       className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <div className="md:col-span-2">
-                       <label className="block text-xs font-semibold text-gray-650 mb-1">Bio Singkat Pria</label>
-                      <textarea
-                        value={form.groomBio}
-                        onChange={(e) => setForm({ ...form, groomBio: e.target.value })}
-                        rows={2}
-                        className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-650 mb-1">Bio Singkat Pria</label>
+                    <textarea
+                      value={form.groomBio}
+                      onChange={(e) => setForm({ ...form, groomBio: e.target.value })}
+                      rows={2}
+                      className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-650 mb-1">Foto Mempelai Pria (Groom Photo)</label>
+                    <p className="text-[10px] text-gray-400 mb-1">Masukkan URL foto online atau klik tombol Upload untuk mengunggah.</p>
+                    <div className="flex gap-4 items-center font-sans">
+                      <input
+                        type="text"
+                        value={form.groomPhoto || ''}
+                        placeholder="e.g. Masukkan URL atau upload gambar"
+                        onChange={(e) => setForm({ ...form, groomPhoto: e.target.value })}
+                        className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500 font-mono text-stone-650"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-650 mb-1">Groom Photo</label>
-                      <div className="flex items-center gap-2">
-                        {form.groomPhoto && <img src={form.groomPhoto} className="w-10 h-10 object-cover rounded-lg border" />}
-                        <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-pink-50 text-[10px] font-bold text-gray-600 transition-all">
-                          <Upload className="w-3.5 h-3.5 text-pink-500" />
-                          <span>Pilih Foto</span>
-                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'groomPhoto')} className="hidden" />
-                        </label>
-                      </div>
+                      <label className="flex items-center justify-center gap-1.5 px-3 py-2 border rounded-lg cursor-pointer hover:bg-pink-50 text-[10px] font-bold shrink-0 bg-gray-50 text-gray-600 transition-all">
+                        <Upload className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Upload</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'groomPhoto')} className="hidden" />
+                      </label>
+                      {form.groomPhoto && <img src={form.groomPhoto} className="w-9 h-9 object-cover rounded-lg border shrink-0" />}
                     </div>
                   </div>
                   <div>
@@ -597,26 +603,32 @@ export default function AdminPanel({ data, onUpdateData, onClose }: AdminPanelPr
                       className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-semibold text-gray-650 mb-1">Bio Singkat Wanita</label>
-                      <textarea
-                        value={form.brideBio}
-                        onChange={(e) => setForm({ ...form, brideBio: e.target.value })}
-                        rows={2}
-                        className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-650 mb-1">Bio Singkat Wanita</label>
+                    <textarea
+                      value={form.brideBio}
+                      onChange={(e) => setForm({ ...form, brideBio: e.target.value })}
+                      rows={2}
+                      className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-650 mb-1">Foto Mempelai Wanita (Bride Photo)</label>
+                    <p className="text-[10px] text-gray-400 mb-1">Masukkan URL foto online atau klik tombol Upload untuk mengunggah.</p>
+                    <div className="flex gap-4 items-center font-sans">
+                      <input
+                        type="text"
+                        value={form.bridePhoto || ''}
+                        placeholder="e.g. Masukkan URL atau upload gambar"
+                        onChange={(e) => setForm({ ...form, bridePhoto: e.target.value })}
+                        className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-pink-500 font-mono text-stone-650"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-650 mb-1">Bride Photo</label>
-                      <div className="flex items-center gap-2">
-                        {form.bridePhoto && <img src={form.bridePhoto} className="w-10 h-10 object-cover rounded-lg border" />}
-                        <label className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 border border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-pink-50 text-[10px] font-bold text-gray-600 transition-all">
-                          <Upload className="w-3.5 h-3.5 text-pink-500" />
-                          <span>Pilih Foto</span>
-                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'bridePhoto')} className="hidden" />
-                        </label>
-                      </div>
+                      <label className="flex items-center justify-center gap-1.5 px-3 py-2 border rounded-lg cursor-pointer hover:bg-pink-50 text-[10px] font-bold shrink-0 bg-gray-50 text-gray-600 transition-all">
+                        <Upload className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Upload</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'bridePhoto')} className="hidden" />
+                      </label>
+                      {form.bridePhoto && <img src={form.bridePhoto} className="w-9 h-9 object-cover rounded-lg border shrink-0" />}
                     </div>
                   </div>
                   <div>
