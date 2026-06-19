@@ -14,6 +14,45 @@ import { InvitationData, GuestWish, StoryEvent } from '../types';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, addDoc, query, onSnapshot, orderBy, serverTimestamp } from 'firebase/firestore';
 
+const INDONESIAN_MONTHS: Record<string, number> = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12
+};
+
+// Derive the wedding countdown target (in GMT+7) from the admin-editable
+// Indonesian date/time strings, e.g. "Jumat, 03 Juli 2026" + "09:00 WIB - 11:30 WIB".
+function parseWeddingTimestamp(dateStr?: string, timeStr?: string): number | null {
+  if (!dateStr) return null;
+
+  const lower = dateStr.toLowerCase();
+  const monthEntry = Object.entries(INDONESIAN_MONTHS).find(([name]) => lower.includes(name));
+  if (!monthEntry) return null;
+  const month = monthEntry[1];
+
+  const yearMatch = dateStr.match(/\b(\d{4})\b/);
+  if (!yearMatch) return null;
+  const year = parseInt(yearMatch[1], 10);
+
+  // Day is the 1-2 digit number that is not the year.
+  const dayMatch = dateStr.match(/\b(\d{1,2})\b/);
+  if (!dayMatch) return null;
+  const day = parseInt(dayMatch[1], 10);
+
+  let hour = 0;
+  let minute = 0;
+  const timeMatch = timeStr?.match(/(\d{1,2}):(\d{2})/);
+  if (timeMatch) {
+    hour = parseInt(timeMatch[1], 10);
+    minute = parseInt(timeMatch[2], 10);
+  }
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  // GMT+7 (WIB) offset.
+  const iso = `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00+07:00`;
+  const ts = new Date(iso).getTime();
+  return Number.isNaN(ts) ? null : ts;
+}
+
 interface InvitationMainProps {
   data: InvitationData;
   onOpenAdmin: () => void;
@@ -75,9 +114,13 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
     ]);
   }, [data.galleryJson]);
 
-  // Audio Play Countdown setup - Wedding date is July 18, 2026 GMT+7
+  // Countdown target derived from the admin-editable wedding date/time (GMT+7).
   useEffect(() => {
-    const weddingDate = new Date("July 03, 2026 09:00:00 GMT+0700").getTime();
+    const weddingDate = parseWeddingTimestamp(data.holyMatrimonyDate, data.holyMatrimonyTime);
+    if (weddingDate === null) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -96,7 +139,7 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [data.holyMatrimonyDate, data.holyMatrimonyTime]);
 
   // Listen to live guest wishes from Firestore
   useEffect(() => {
