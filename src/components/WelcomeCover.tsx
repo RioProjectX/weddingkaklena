@@ -47,7 +47,6 @@ export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBa
         
         <div className="text-center sm:text-right">
           <p className="text-[10px] sm:text-[11px] tracking-[0.25em] font-sans uppercase font-medium text-[#1A1A1A]">{groomNick} &amp; {brideNick}</p>
-          <p className="text-[9px] text-[#A0A0A0] font-sans uppercase mt-0.5 tracking-wider">Jakarta, Indonesia</p>
         </div>
       </div>
 
