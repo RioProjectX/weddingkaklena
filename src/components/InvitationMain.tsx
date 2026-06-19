@@ -77,7 +77,7 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
 
   // Audio Play Countdown setup - Wedding date is July 18, 2026 GMT+7
   useEffect(() => {
-    const weddingDate = new Date("July 18, 2026 09:00:00 GMT+0700").getTime();
+    const weddingDate = new Date("July 03, 2026 09:00:00 GMT+0700").getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
