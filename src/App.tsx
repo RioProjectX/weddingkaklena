@@ -111,6 +111,10 @@ export default function App() {
           coverPhoto={invitationData.coverPhoto}
           coverBackgroundPhoto={invitationData.coverBackgroundPhoto}
           guestName={guestName}
+          holyMatrimonyVenue={invitationData.holyMatrimonyVenue}
+          receptionVenue={invitationData.receptionVenue}
+          holyMatrimonyDate={invitationData.holyMatrimonyDate}
+          holyMatrimonyTime={invitationData.holyMatrimonyTime}
           onOpen={() => {
             setIsOpened(true);
             setIsPlaying(true);

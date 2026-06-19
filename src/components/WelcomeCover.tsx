@@ -13,9 +13,15 @@ interface WelcomeCoverProps {
   coverBackgroundPhoto?: string;
   onOpen: () => void;
   guestName: string;
+  holyMatrimonyVenue?: string;
+  receptionVenue?: string;
+  holyMatrimonyDate?: string;
+  holyMatrimonyTime?: string;
 }
 
-export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBackgroundPhoto, onOpen, guestName }: WelcomeCoverProps) {
+export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBackgroundPhoto, onOpen, guestName, holyMatrimonyVenue, receptionVenue, holyMatrimonyDate, holyMatrimonyTime }: WelcomeCoverProps) {
+  const monogram = `${(groomNick || '').charAt(0)}&${(brideNick || '').charAt(0)}`;
+  const venues = [receptionVenue, holyMatrimonyVenue].filter(Boolean);
   return (
     <div
       id="welcome-cover"
@@ -40,7 +46,7 @@ export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBa
         </div>
         
         <div className="text-center sm:text-right">
-          <p className="text-[10px] sm:text-[11px] tracking-[0.25em] font-sans uppercase font-medium text-[#1A1A1A]">Justin &amp; Magdalena</p>
+          <p className="text-[10px] sm:text-[11px] tracking-[0.25em] font-sans uppercase font-medium text-[#1A1A1A]">{groomNick} &amp; {brideNick}</p>
           <p className="text-[9px] text-[#A0A0A0] font-sans uppercase mt-0.5 tracking-wider">Jakarta, Indonesia</p>
         </div>
       </div>
@@ -63,7 +69,7 @@ export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBa
           className="relative max-w-2xl"
         >
           <h1 className="text-[52px] sm:text-[76px] md:text-[90px] leading-[1] italic font-normal mb-2 text-[#1A1A1A] tracking-tight">
-            {groomNick === 'Justin' ? 'Justin Bieber' : groomNick}
+            {groomNick}
           </h1>
           <div className="flex items-center justify-center my-3 sm:my-5">
             <div className="h-[1px] w-12 sm:w-20 bg-[#D4AF37]/50"></div>
@@ -71,7 +77,7 @@ export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBa
             <div className="h-[1px] w-12 sm:w-20 bg-[#D4AF37]/50"></div>
           </div>
           <h1 className="text-[44px] sm:text-[66px] md:text-[78px] leading-[1] italic font-normal text-[#1A1A1A] tracking-tight">
-            {brideNick === 'Magdalena' ? 'Magdalena br Hutabarat' : brideNick}
+            {brideNick}
           </h1>
         </motion.div>
 
@@ -115,20 +121,23 @@ export default function WelcomeCover({ groomNick, brideNick, coverPhoto, coverBa
       <div className="z-10 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 mt-4 sm:mt-0 pt-4 border-t border-[#1A1A1A]/5">
         <div className="max-w-xs text-center sm:text-left">
           <p className="text-[10px] leading-relaxed tracking-wider font-sans uppercase text-[#888]">
-            The Ritz-Carlton Jakarta &amp;<br/>
-            Gereja HKBP Kebayoran Baru
+            {venues.map((venue, idx) => (
+              <span key={idx}>
+                {venue}{idx < venues.length - 1 && <> &amp;<br/></>}
+              </span>
+            ))}
           </p>
         </div>
 
         <div className="text-center sm:text-right">
-          <p className="text-[12px] tracking-[0.15em] font-sans uppercase font-bold text-[#1A1A1A]">Sabtu, 18 Juli 2026</p>
-          <p className="text-[10px] tracking-wide italic text-[#888] mt-0.5">Pukul Sembilan Pagi Hari</p>
+          <p className="text-[12px] tracking-[0.15em] font-sans uppercase font-bold text-[#1A1A1A]">{holyMatrimonyDate}</p>
+          {holyMatrimonyTime && <p className="text-[10px] tracking-wide italic text-[#888] mt-0.5">{holyMatrimonyTime}</p>}
         </div>
       </div>
 
       {/* Elegant Large Monogram Background Motif */}
       <div className="absolute -bottom-16 -left-16 opacity-[0.03] select-none pointer-events-none z-0 hidden sm:block">
-        <span className="text-[320px] font-serif italic font-extralight text-[#1A1A1A] tracking-tighter">M&amp;J</span>
+        <span className="text-[320px] font-serif italic font-extralight text-[#1A1A1A] tracking-tighter">{monogram}</span>
       </div>
     </div>
   );
