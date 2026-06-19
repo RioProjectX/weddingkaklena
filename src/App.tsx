@@ -92,10 +92,10 @@ export default function App() {
           <Heart className="w-6 h-6 text-pink-400 absolute fill-pink-400/20 animate-ping" />
         </div>
         <h3 className="font-serif text-lg tracking-widest text-stone-850 mt-6 uppercase">Undangan Digital</h3>
-        <p className="text-stone-400 text-xs mt-1 italic">Mempersiapkan rincian janji suci...</p>
+        <p className="text-stone-400 text-xs mt-1 italic">Tunggu Sebentar Ya</p>
         <div className="flex items-center gap-1.5 text-[10px] text-pink-500/70 font-semibold mt-10">
           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-          <span>Mengubungi Cloud Firestore</span>
+          <span>Loading</span>
         </div>
       </div>
     );
