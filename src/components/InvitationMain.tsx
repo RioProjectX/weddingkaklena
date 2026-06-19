@@ -53,6 +53,103 @@ function parseWeddingTimestamp(dateStr?: string, timeStr?: string): number | nul
   return Number.isNaN(ts) ? null : ts;
 }
 
+// Split an Indonesian date string ("Jumat, 03 Juli 2026") into display parts.
+function parseDateParts(dateStr?: string): { day: string; dayName: string; month: string; year: string } {
+  if (!dateStr) return { day: '', dayName: '', month: '', year: '' };
+  const dayNameMatch = dateStr.match(/^\s*([A-Za-z]+)/);
+  const dayName = dayNameMatch ? dayNameMatch[1] : '';
+  const yearMatch = dateStr.match(/\b(\d{4})\b/);
+  const year = yearMatch ? yearMatch[1] : '';
+  const dayMatch = dateStr.match(/\b(\d{1,2})\b/);
+  const day = dayMatch ? dayMatch[1] : '';
+  const monthKey = Object.keys(INDONESIAN_MONTHS).find((m) => dateStr.toLowerCase().includes(m));
+  const month = monthKey ? monthKey.charAt(0).toUpperCase() + monthKey.slice(1) : '';
+  return { day, dayName, month, year };
+}
+
+interface EventCardProps {
+  title: string;
+  date?: string;
+  time?: string;
+  venue?: string;
+  address?: string;
+  mapHref: string;
+  images: string[];
+  slideIndex: number;
+  reverse?: boolean;
+  delay?: number;
+}
+
+// Event card replicating the weddingsamuel-ester "Wedding Event" layout:
+// an arched photo slideshow beside a dark-titled date/venue panel.
+function EventCard({ title, date, time, venue, address, mapHref, images, slideIndex, reverse = false, delay = 0 }: EventCardProps) {
+  const { day, dayName, month, year } = parseDateParts(date);
+  const activeIndex = images.length > 0 ? slideIndex % images.length : 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay }}
+      className={`flex flex-col ${reverse ? 'md:flex-row-reverse' : 'md:flex-row'} bg-[#f7f7f7] border border-[#E5E5E5] shadow-sm overflow-hidden`}
+    >
+      {/* Photo slideshow with arched corner */}
+      <div className={`relative md:flex-1 h-60 md:h-auto md:min-h-[24rem] overflow-hidden bg-stone-200 ${reverse ? 'rounded-tr-[45%]' : 'rounded-tl-[45%]'}`}>
+        {images.map((url, idx) => (
+          <img
+            key={idx}
+            src={url}
+            alt={`${title} ${idx + 1}`}
+            loading="lazy"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === activeIndex ? 'opacity-100' : 'opacity-0'}`}
+          />
+        ))}
+      </div>
+
+      {/* Date & venue panel */}
+      <div className="md:flex-1 flex flex-col">
+        <div className="bg-[#5d646f] py-4 px-6 text-center">
+          <h3 className="font-serif text-2xl sm:text-3xl text-white uppercase tracking-wide font-normal">{title}</h3>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-10">
+          <div className="flex items-center gap-5">
+            <span className="font-serif text-6xl sm:text-7xl font-light text-[#5d646f] leading-none">{day}</span>
+            <div className="flex flex-col text-[#5d646f] tracking-[0.15em] text-sm sm:text-base leading-snug">
+              <span>{dayName}</span>
+              <span>{month}</span>
+              <span>{year}</span>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-[#5d646f]/40 w-full max-w-xs text-center">
+            {time && (
+              <p className="flex items-center justify-center gap-2 text-[#5d646f] text-sm tracking-wider">
+                <Clock className="w-4 h-4" />
+                <span>{time}</span>
+              </p>
+            )}
+            <div className="mt-5">
+              <h5 className="font-sans font-semibold text-[#3a4f47] tracking-[0.15em] uppercase text-sm mb-1.5">Lokasi Acara</h5>
+              <p className="text-[#5d646f] text-sm leading-relaxed">{venue}</p>
+              {address && <p className="text-[#5d646f]/80 text-xs leading-relaxed mt-1">{address}</p>}
+              <a
+                href={mapHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-4 px-6 py-2.5 border border-[#5d646f] bg-[#f7f7f7] text-[#5d646f] text-xs uppercase tracking-[0.15em] hover:bg-[#5d646f] hover:text-[#f7f7f7] transition-colors"
+              >
+                Google Maps
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 interface InvitationMainProps {
   data: InvitationData;
   onOpenAdmin: () => void;
@@ -653,178 +750,29 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
             <div className="w-16 h-[1px] bg-[#D4AF37]/55 mx-auto mt-4" />
           </div>
 
-          {/* Event location photo slideshow (Gallery Our Moment) */}
-          {gallery.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="relative w-full max-w-3xl mx-auto mb-16 aspect-[16/9] overflow-hidden border border-[#E5E5E5] shadow-sm bg-stone-100"
-              id="event-location-slideshow"
-            >
-              {gallery.map((url, idx) => (
-                <img
-                  key={idx}
-                  src={url}
-                  alt={`Our Moment ${idx + 1}`}
-                  loading="lazy"
-                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === slideIndex ? 'opacity-100' : 'opacity-0'}`}
-                />
-              ))}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                {gallery.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    aria-label={`Lihat foto ${idx + 1}`}
-                    onClick={() => setSlideIndex(idx)}
-                    className={`h-1.5 rounded-full transition-all ${idx === slideIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/55 hover:bg-white/80'}`}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-            
-            {/* Box Holy Matrimony */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white rounded-none p-10 shadow-sm border border-[#E5E5E5] flex flex-col justify-between relative overflow-hidden"
-              id="holy-matrimony-calendar-card"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#D4AF37]/50" />
-              <div className="space-y-6">
-                <div className="flex gap-4 items-center border-b border-[#E5E5E5] pb-5">
-                  <div className="w-10 h-10 border border-[#D4AF37] text-[#D4AF37] rounded-none flex items-center justify-center shrink-0">
-                    <Heart className="w-4 h-4 fill-[#D4AF37]/15" />
-                  </div>
-                  <div>
-                    <h4 className="font-serif text-xl font-normal text-[#1A1A1A]">Pemberkatan Pernikahan</h4>
-                    <span className="text-[9px] text-[#A0A0A0] font-sans font-bold uppercase tracking-widest mt-0.5 block">Holy Matrimony</span>
-                  </div>
-                </div>
-
-                <div className="space-y-5 text-stone-600 font-sans text-xs">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <span className="font-medium text-[#1A1A1A]">{data.holyMatrimonyDate}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <span className="font-medium text-[#1A1A1A]">{data.holyMatrimonyTime}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[#1A1A1A] font-bold text-sm block mb-1">{data.holyMatrimonyVenue}</p>
-                      <p className="text-[11px] text-[#888] leading-relaxed font-normal">{data.holyMatrimonyAddress}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map embed and direct link */}
-              <div className="mt-8 space-y-4">
-                {data.holyMatrimonyMap && data.holyMatrimonyMap.startsWith('http') && (
-                  <div className="w-full h-36 rounded-none overflow-hidden border border-neutral-200">
-                    <iframe
-                      src={data.holyMatrimonyMap}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0, filter: 'grayscale(0.12)' }}
-                      allowFullScreen={false}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                )}
-                <a
-                  id="btn-holy-matrimony-map"
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${data.holyMatrimonyVenue} ${data.holyMatrimonyAddress}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2.5 px-5 py-3.5 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white rounded-none text-xs font-semibold tracking-wider uppercase transition-all shadow-sm"
-                >
-                  <Map className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>Buka di Google Maps</span>
-                  <ExternalLink className="w-3 h-3 text-[#A0A0A0]" />
-                </a>
-              </div>
-            </motion.div>
-
-            {/* Box Reception */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.15 }}
-              className="bg-white rounded-none p-10 shadow-sm border border-[#E5E5E5] flex flex-col justify-between relative overflow-hidden"
-              id="reception-calendar-card"
-            >
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-[#D4AF37]/50" />
-              <div className="space-y-6">
-                <div className="flex gap-4 items-center border-b border-[#E5E5E5] pb-5">
-                  <div className="w-10 h-10 border border-[#D4AF37] text-[#D4AF37] rounded-none flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-serif text-xl font-normal text-[#1A1A1A]">Resepsi Pernikahan</h4>
-                    <span className="text-[9px] text-[#A0A0A0] font-sans font-bold uppercase tracking-widest mt-0.5 block">Wedding Reception</span>
-                  </div>
-                </div>
-
-                <div className="space-y-5 text-stone-605 font-sans text-xs">
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <span className="font-medium text-[#1A1A1A]">{data.receptionDate}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <span className="font-medium text-[#1A1A1A]">{data.receptionTime}</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-[#1A1A1A] font-bold text-sm block mb-1">{data.receptionVenue}</p>
-                      <p className="text-[11px] text-[#888] leading-relaxed font-normal">{data.receptionAddress}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map embed and direct link */}
-              <div className="mt-8 space-y-4">
-                {data.receptionMap && data.receptionMap.startsWith('http') && (
-                  <div className="w-full h-36 rounded-none overflow-hidden border border-neutral-200">
-                    <iframe
-                      src={data.receptionMap}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0, filter: 'grayscale(0.12)' }}
-                      allowFullScreen={false}
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                )}
-                <a
-                  id="btn-reception-map"
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${data.receptionVenue} ${data.receptionAddress}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2.5 px-5 py-3.5 bg-[#1A1A1A] hover:bg-[#2A2A2A] text-white rounded-none text-xs font-semibold tracking-wider uppercase transition-all shadow-sm"
-                >
-                  <Map className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>Buka di Google Maps</span>
-                  <ExternalLink className="w-3 h-3 text-[#A0A0A0]" />
-                </a>
-              </div>
-            </motion.div>
-
+          <div className="space-y-12">
+            <EventCard
+              title="Pemberkatan Pernikahan"
+              date={data.holyMatrimonyDate}
+              time={data.holyMatrimonyTime}
+              venue={data.holyMatrimonyVenue}
+              address={data.holyMatrimonyAddress}
+              mapHref={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${data.holyMatrimonyVenue} ${data.holyMatrimonyAddress}`)}`}
+              images={gallery}
+              slideIndex={slideIndex}
+            />
+            <EventCard
+              title="Resepsi Pernikahan"
+              date={data.receptionDate}
+              time={data.receptionTime}
+              venue={data.receptionVenue}
+              address={data.receptionAddress}
+              mapHref={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${data.receptionVenue} ${data.receptionAddress}`)}`}
+              images={gallery}
+              slideIndex={slideIndex + 1}
+              reverse
+              delay={0.15}
+            />
           </div>
         </div>
       </section>
