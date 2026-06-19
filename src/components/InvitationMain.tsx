@@ -79,6 +79,9 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
   const [gallery, setGallery] = useState<string[]>([]);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
 
+  // Event location slideshow (auto-advancing through Gallery Our Moment photos)
+  const [slideIndex, setSlideIndex] = useState(0);
+
   useEffect(() => {
     try {
       setStories(JSON.parse(data.storiesJson || '[]'));
@@ -113,6 +116,20 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
       'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600'
     ]);
   }, [data.galleryJson]);
+
+  // Auto-advance the event location slideshow.
+  useEffect(() => {
+    if (gallery.length <= 1) return;
+    const interval = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % gallery.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [gallery.length]);
+
+  // Keep slideIndex in range when gallery changes.
+  useEffect(() => {
+    setSlideIndex((prev) => (gallery.length === 0 ? 0 : prev % gallery.length));
+  }, [gallery.length]);
 
   // Countdown target derived from the admin-editable wedding date/time (GMT+7).
   useEffect(() => {
@@ -635,6 +652,39 @@ export default function InvitationMain({ data, onOpenAdmin, guestName, isPlaying
             <h3 className="font-serif text-4xl sm:text-5xl text-[#1A1A1A] italic tracking-tight font-normal">Waktu &amp; Tempat Acara</h3>
             <div className="w-16 h-[1px] bg-[#D4AF37]/55 mx-auto mt-4" />
           </div>
+
+          {/* Event location photo slideshow (Gallery Our Moment) */}
+          {gallery.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="relative w-full max-w-3xl mx-auto mb-16 aspect-[16/9] overflow-hidden border border-[#E5E5E5] shadow-sm bg-stone-100"
+              id="event-location-slideshow"
+            >
+              {gallery.map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`Our Moment ${idx + 1}`}
+                  loading="lazy"
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === slideIndex ? 'opacity-100' : 'opacity-0'}`}
+                />
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                {gallery.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    aria-label={`Lihat foto ${idx + 1}`}
+                    onClick={() => setSlideIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all ${idx === slideIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/55 hover:bg-white/80'}`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
             
